@@ -28,7 +28,7 @@ RUN wget https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-${OPENSSH_
         --without-selinux \
         --without-kerberos5 \
         --without-libedit && \
-    make -j$(nproc) LDFLAGS="-static" && \
+    make -j$(nproc) && \
     make install DESTDIR=/build/install && \
     strip /build/install/usr/sbin/sshd \
           /build/install/usr/bin/ssh \
