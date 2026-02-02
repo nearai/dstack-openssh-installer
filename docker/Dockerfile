@@ -38,9 +38,9 @@ RUN wget https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-${OPENSSH_
           /build/install/usr/libexec/sftp-server \
           /build/install/usr/libexec/sshd-session
 
-# Verify static linking
+# Verify static linking (static-pie or statically linked)
 RUN file /build/install/usr/sbin/sshd && \
-    file /build/install/usr/sbin/sshd | grep -q "statically linked" && \
+    file /build/install/usr/sbin/sshd | grep -qE "(statically linked|static-pie linked)" && \
     echo "sshd is statically linked"
 
 # Final image
