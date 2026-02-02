@@ -10,7 +10,8 @@ RUN apk add --no-cache \
     openssl-libs-static \
     zlib-dev \
     zlib-static \
-    wget
+    wget \
+    file
 
 WORKDIR /build
 
@@ -19,17 +20,15 @@ ARG OPENSSH_VERSION=9.9p1
 RUN wget https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-${OPENSSH_VERSION}.tar.gz && \
     tar xzf openssh-${OPENSSH_VERSION}.tar.gz && \
     cd openssh-${OPENSSH_VERSION} && \
-    ./configure \
+    LDFLAGS="-static" LIBS="-lpthread" ./configure \
         --prefix=/usr \
         --sysconfdir=/etc/ssh \
         --with-privsep-path=/run/sshd \
         --without-pam \
         --without-selinux \
         --without-kerberos5 \
-        --without-libedit \
-        LDFLAGS="-static" \
-        LIBS="-lpthread" && \
-    make -j$(nproc) && \
+        --without-libedit && \
+    make -j$(nproc) LDFLAGS="-static" && \
     make install DESTDIR=/build/install && \
     strip /build/install/usr/sbin/sshd \
           /build/install/usr/bin/ssh \
@@ -40,7 +39,8 @@ RUN wget https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-${OPENSSH_
           /build/install/usr/libexec/sshd-session
 
 # Verify static linking
-RUN file /build/install/usr/sbin/sshd | grep -q "statically linked" && \
+RUN file /build/install/usr/sbin/sshd && \
+    file /build/install/usr/sbin/sshd | grep -q "statically linked" && \
     echo "sshd is statically linked"
 
 # Final image
